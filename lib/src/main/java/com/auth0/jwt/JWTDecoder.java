@@ -9,7 +9,7 @@ import com.auth0.jwt.interfaces.Payload;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -79,17 +79,17 @@ final class JWTDecoder implements DecodedJWT {
     }
 
     @Override
-    public Date getExpiresAt() {
+    public Instant getExpiresAt() {
         return payload.getExpiresAt();
     }
 
     @Override
-    public Date getNotBefore() {
+    public Instant getNotBefore() {
         return payload.getNotBefore();
     }
 
     @Override
-    public Date getIssuedAt() {
+    public Instant getIssuedAt() {
         return payload.getIssuedAt();
     }
 

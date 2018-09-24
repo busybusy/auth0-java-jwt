@@ -2,7 +2,7 @@ package com.auth0.jwt.interfaces;
 
 import com.auth0.jwt.exceptions.JWTDecodeException;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +64,7 @@ public interface Claim {
      *
      * @return the value as a Date or null.
      */
-    Date asDate();
+    Instant asInstant();
 
     /**
      * Get this Claim as an Array of type T.

@@ -11,7 +11,7 @@ import org.junit.rules.ExpectedException;
 import java.nio.charset.StandardCharsets;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.RSAPrivateKey;
-import java.util.Date;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -172,7 +172,7 @@ public class JWTCreatorTest {
     @Test
     public void shouldAddExpiresAt() throws Exception {
         String signed = JWTCreator.init()
-                .withExpiresAt(new Date(1477592000))
+                .withExpiresAt(Instant.ofEpochSecond(1477592000))
                 .sign(Algorithm.HMAC256("secret"));
 
         assertThat(signed, is(notNullValue()));
@@ -182,7 +182,7 @@ public class JWTCreatorTest {
     @Test
     public void shouldAddNotBefore() throws Exception {
         String signed = JWTCreator.init()
-                .withNotBefore(new Date(1477592000))
+                .withNotBefore(Instant.ofEpochSecond(1477592000))
                 .sign(Algorithm.HMAC256("secret"));
 
         assertThat(signed, is(notNullValue()));
@@ -192,7 +192,7 @@ public class JWTCreatorTest {
     @Test
     public void shouldAddIssuedAt() throws Exception {
         String signed = JWTCreator.init()
-                .withIssuedAt(new Date(1477592000))
+                .withIssuedAt(Instant.ofEpochSecond(1477592000))
                 .sign(Algorithm.HMAC256("secret"));
 
         assertThat(signed, is(notNullValue()));
@@ -314,10 +314,10 @@ public class JWTCreatorTest {
     }
 
     @Test
-    public void shouldAcceptCustomClaimOfTypeDate() throws Exception {
-        Date date = new Date(1478891521000L);
+    public void shouldAcceptCustomClaimOfTypeInstant() throws Exception {
+        Instant instant = Instant.ofEpochMilli(1478891521000L);
         String jwt = JWTCreator.init()
-                .withClaim("name", date)
+                .withClaim("name", instant)
                 .sign(Algorithm.HMAC256("secret"));
 
         assertThat(jwt, is(notNullValue()));

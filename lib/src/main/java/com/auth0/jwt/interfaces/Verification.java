@@ -2,7 +2,7 @@ package com.auth0.jwt.interfaces;
 
 import com.auth0.jwt.JWTVerifier;
 
-import java.util.Date;
+import java.time.Instant;
 
 public interface Verification {
     Verification withIssuer(String issuer);
@@ -31,7 +31,7 @@ public interface Verification {
 
     Verification withClaim(String name, String value) throws IllegalArgumentException;
 
-    Verification withClaim(String name, Date value) throws IllegalArgumentException;
+    Verification withClaim(String name, Instant value) throws IllegalArgumentException;
 
     Verification withArrayClaim(String name, String... items) throws IllegalArgumentException;
 

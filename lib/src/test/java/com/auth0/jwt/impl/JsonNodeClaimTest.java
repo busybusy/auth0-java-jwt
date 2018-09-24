@@ -113,16 +113,16 @@ public class JsonNodeClaimTest {
         JsonNode value = mapper.valueToTree(1476824844L);
         Claim claim = claimFromNode(value);
 
-        assertThat(claim.asDate(), is(notNullValue()));
-        assertThat(claim.asDate(), is(new Date(1476824844L * 1000)));
+        assertThat(claim.asInstant(), is(notNullValue()));
+        assertThat(claim.asInstant(), is(new Date(1476824844L * 1000)));
     }
 
     @Test
     public void shouldGetNullDateIfNotDateValue() throws Exception {
         JsonNode objectValue = mapper.valueToTree(new Object());
-        assertThat(claimFromNode(objectValue).asDate(), is(nullValue()));
+        assertThat(claimFromNode(objectValue).asInstant(), is(nullValue()));
         JsonNode stringValue = mapper.valueToTree("1476824844");
-        assertThat(claimFromNode(stringValue).asDate(), is(nullValue()));
+        assertThat(claimFromNode(stringValue).asInstant(), is(nullValue()));
     }
 
     @Test

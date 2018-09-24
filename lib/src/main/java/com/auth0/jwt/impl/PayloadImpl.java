@@ -4,6 +4,7 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.Payload;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.time.Instant;
 import java.util.*;
 
 import static com.auth0.jwt.impl.JsonNodeClaim.extractClaim;
@@ -15,13 +16,13 @@ class PayloadImpl implements Payload {
     private final String issuer;
     private final String subject;
     private final List<String> audience;
-    private final Date expiresAt;
-    private final Date notBefore;
-    private final Date issuedAt;
+    private final Instant expiresAt;
+    private final Instant notBefore;
+    private final Instant issuedAt;
     private final String jwtId;
     private final Map<String, JsonNode> tree;
 
-    PayloadImpl(String issuer, String subject, List<String> audience, Date expiresAt, Date notBefore, Date issuedAt, String jwtId, Map<String, JsonNode> tree) {
+    PayloadImpl(String issuer, String subject, List<String> audience, Instant expiresAt, Instant notBefore, Instant issuedAt, String jwtId, Map<String, JsonNode> tree) {
         this.issuer = issuer;
         this.subject = subject;
         this.audience = audience;
@@ -52,17 +53,17 @@ class PayloadImpl implements Payload {
     }
 
     @Override
-    public Date getExpiresAt() {
+    public Instant getExpiresAt() {
         return expiresAt;
     }
 
     @Override
-    public Date getNotBefore() {
+    public Instant getNotBefore() {
         return notBefore;
     }
 
     @Override
-    public Date getIssuedAt() {
+    public Instant getIssuedAt() {
         return issuedAt;
     }
 

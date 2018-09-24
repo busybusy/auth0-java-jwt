@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -25,15 +26,15 @@ public class PayloadImplTest {
     public ExpectedException exception = ExpectedException.none();
 
     private PayloadImpl payload;
-    private Date expiresAt;
-    private Date notBefore;
-    private Date issuedAt;
+    private Instant expiresAt;
+    private Instant notBefore;
+    private Instant issuedAt;
 
     @Before
     public void setUp() throws Exception {
-        expiresAt = Mockito.mock(Date.class);
-        notBefore = Mockito.mock(Date.class);
-        issuedAt = Mockito.mock(Date.class);
+        expiresAt = Mockito.mock(Instant.class);
+        notBefore = Mockito.mock(Instant.class);
+        issuedAt = Mockito.mock(Instant.class);
         Map<String, JsonNode> tree = new HashMap<>();
         tree.put("extraClaim", new TextNode("extraValue"));
         payload = new PayloadImpl("issuer", "subject", Collections.singletonList("audience"), expiresAt, notBefore, issuedAt, "jwtId", tree);

@@ -4,10 +4,11 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.*;
 import com.auth0.jwt.impl.PublicClaims;
 import com.auth0.jwt.interfaces.Claim;
-import com.auth0.jwt.interfaces.Clock;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.Verification;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -17,12 +18,10 @@ import java.util.*;
 public final class JWTVerifier {
     private final Algorithm algorithm;
     final Map<String, Object> claims;
-    private final Clock clock;
 
-    JWTVerifier(Algorithm algorithm, Map<String, Object> claims, Clock clock) {
+    JWTVerifier(Algorithm algorithm, Map<String, Object> claims) {
         this.algorithm = algorithm;
         this.claims = Collections.unmodifiableMap(claims);
-        this.clock = clock;
     }
 
     /**
@@ -107,7 +106,7 @@ public final class JWTVerifier {
 
         /**
          * Set a specific leeway window in seconds in which the Expires At ("exp") Claim will still be valid.
-         * Expiration Date is always verified when the value is present. This method overrides the value set with acceptLeeway
+         * Expiration Instant is always verified when the value is present. This method overrides the value set with acceptLeeway
          *
          * @param leeway the window in seconds in which the Expires At Claim will still be valid.
          * @return this same Verification instance.
@@ -122,7 +121,7 @@ public final class JWTVerifier {
 
         /**
          * Set a specific leeway window in seconds in which the Not Before ("nbf") Claim will still be valid.
-         * Not Before Date is always verified when the value is present. This method overrides the value set with acceptLeeway
+         * Not Before Instant is always verified when the value is present. This method overrides the value set with acceptLeeway
          *
          * @param leeway the window in seconds in which the Not Before Claim will still be valid.
          * @return this same Verification instance.
@@ -137,7 +136,7 @@ public final class JWTVerifier {
 
         /**
          * Set a specific leeway window in seconds in which the Issued At ("iat") Claim will still be valid.
-         * Issued At Date is always verified when the value is present. This method overrides the value set with acceptLeeway
+         * Issued At Instant is always verified when the value is present. This method overrides the value set with acceptLeeway
          *
          * @param leeway the window in seconds in which the Issued At Claim will still be valid.
          * @return this same Verification instance.
@@ -246,7 +245,7 @@ public final class JWTVerifier {
          * @throws IllegalArgumentException if the name is null.
          */
         @Override
-        public Verification withClaim(String name, Date value) throws IllegalArgumentException {
+        public Verification withClaim(String name, Instant value) throws IllegalArgumentException {
             assertNonNull(name);
             requireClaim(name, value);
             return this;
@@ -289,19 +288,8 @@ public final class JWTVerifier {
          */
         @Override
         public JWTVerifier build() {
-            return this.build(new ClockImpl());
-        }
-
-        /**
-         * Creates a new and reusable instance of the JWTVerifier with the configuration already provided.
-         * ONLY FOR TEST PURPOSES.
-         *
-         * @param clock the instance that will handle the current time.
-         * @return a new JWTVerifier instance with a custom Clock.
-         */
-        public JWTVerifier build(Clock clock) {
-            addLeewayToDateClaims();
-            return new JWTVerifier(algorithm, claims, clock);
+            addLeewayToInstantClaims();
+            return new JWTVerifier(algorithm, claims);
         }
 
         private void assertPositive(long leeway) {
@@ -316,7 +304,7 @@ public final class JWTVerifier {
             }
         }
 
-        private void addLeewayToDateClaims() {
+        private void addLeewayToInstantClaims() {
             if (!claims.containsKey(PublicClaims.EXPIRES_AT)) {
                 claims.put(PublicClaims.EXPIRES_AT, defaultLeeway);
             }
@@ -370,13 +358,13 @@ public final class JWTVerifier {
                     assertValidAudienceClaim(jwt.getAudience(), (List<String>) entry.getValue());
                     break;
                 case PublicClaims.EXPIRES_AT:
-                    assertValidDateClaim(jwt.getExpiresAt(), (Long) entry.getValue(), true);
+                    assertValidInstantClaim(jwt.getExpiresAt(), (Long) entry.getValue(), true);
                     break;
                 case PublicClaims.ISSUED_AT:
-                    assertValidDateClaim(jwt.getIssuedAt(), (Long) entry.getValue(), false);
+                    assertValidInstantClaim(jwt.getIssuedAt(), (Long) entry.getValue(), false);
                     break;
                 case PublicClaims.NOT_BEFORE:
-                    assertValidDateClaim(jwt.getNotBefore(), (Long) entry.getValue(), false);
+                    assertValidInstantClaim(jwt.getNotBefore(), (Long) entry.getValue(), false);
                     break;
                 case PublicClaims.ISSUER:
                     assertValidStringClaim(entry.getKey(), jwt.getIssuer(), (String) entry.getValue());
@@ -406,8 +394,8 @@ public final class JWTVerifier {
             isValid = value.equals(claim.asBoolean());
         } else if (value instanceof Double) {
             isValid = value.equals(claim.asDouble());
-        } else if (value instanceof Date) {
-            isValid = value.equals(claim.asDate());
+        } else if (value instanceof Instant) {
+            isValid = value.equals(claim.asInstant());
         } else if (value instanceof Object[]) {
             List<Object> claimArr = Arrays.asList(claim.as(Object[].class));
             List<Object> valueArr = Arrays.asList((Object[]) value);
@@ -425,27 +413,24 @@ public final class JWTVerifier {
         }
     }
 
-    private void assertValidDateClaim(Date date, long leeway, boolean shouldBeFuture) {
-        Date today = clock.getToday();
-        today.setTime((long) Math.floor((today.getTime() / 1000) * 1000)); // truncate millis
+    private void assertValidInstantClaim(Instant claimed, long leeway, boolean shouldBeFuture) {
+        Instant now = Instant.now();
         if (shouldBeFuture) {
-            assertDateIsFuture(date, leeway, today);
+            assertInstantIsFuture(claimed, leeway, now);
         } else {
-            assertDateIsPast(date, leeway, today);
+            assertInstantIsPast(claimed, leeway, now);
         }
     }
 
-    private void assertDateIsFuture(Date date, long leeway, Date today) {
-        today.setTime(today.getTime() - leeway * 1000);
-        if (date != null && today.after(date)) {
-            throw new TokenExpiredException(String.format("The Token has expired on %s.", date));
+    private void assertInstantIsFuture(Instant claimed, long leeway, Instant current) {
+        if (claimed != null && claimed.minusSeconds(leeway).isAfter(current)) {
+            throw new TokenExpiredException(String.format("The Token has expired on %s.", claimed));
         }
     }
 
-    private void assertDateIsPast(Date date, long leeway, Date today) {
-        today.setTime(today.getTime() + leeway * 1000);
-        if (date != null && today.before(date)) {
-            throw new InvalidClaimException(String.format("The Token can't be used before %s.", date));
+    private void assertInstantIsPast(Instant claimed, long leeway, Instant current) {
+        if (claimed != null && claimed.plusSeconds(leeway).isBefore(current)) {
+            throw new InvalidClaimException(String.format("The Token can't be used before %s.", claimed));
         }
     }
 
