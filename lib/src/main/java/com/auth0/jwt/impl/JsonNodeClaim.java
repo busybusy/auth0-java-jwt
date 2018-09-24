@@ -10,8 +10,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -52,12 +52,8 @@ class JsonNodeClaim implements Claim {
     }
 
     @Override
-    public Date asDate() {
-        if (!data.canConvertToLong()) {
-            return null;
-        }
-        long seconds = data.asLong();
-        return new Date(seconds * 1000);
+    public Instant asInstant() {
+        return !data.canConvertToLong() ? null : Instant.ofEpochSecond(data.asLong());
     }
 
     @Override

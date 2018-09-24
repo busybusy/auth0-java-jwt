@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.StringReader;
+import java.time.Instant;
 import java.util.*;
 
 import static org.hamcrest.Matchers.*;
@@ -93,9 +94,9 @@ public class PayloadDeserializerTest {
         assertThat(payload.getIssuer(), is("auth0"));
         assertThat(payload.getSubject(), is("emails"));
         assertThat(payload.getAudience(), is(IsCollectionContaining.hasItem("users")));
-        assertThat(payload.getIssuedAt().getTime(), is(10101010L * 1000));
-        assertThat(payload.getExpiresAt().getTime(), is(11111111L * 1000));
-        assertThat(payload.getNotBefore().getTime(), is(10101011L * 1000));
+        assertThat(payload.getIssuedAt().toEpochMilli(), is(10101010L * 1000));
+        assertThat(payload.getExpiresAt().toEpochMilli(), is(11111111L * 1000));
+        assertThat(payload.getNotBefore().toEpochMilli(), is(10101011L * 1000));
         assertThat(payload.getId(), is("idid"));
 
         assertThat(payload.getClaim("roles").asString(), is("admin"));
@@ -179,21 +180,21 @@ public class PayloadDeserializerTest {
 
 
     @Test
-    public void shouldGetNullDateWhenParsingNullNode() throws Exception {
+    public void shouldGetNullInstantWhenParsingNullNode() throws Exception {
         Map<String, JsonNode> tree = new HashMap<>();
         NullNode node = NullNode.getInstance();
         tree.put("key", node);
 
-        Date date = deserializer.getDateFromSeconds(tree, "key");
+        Instant date = deserializer.getInstantFromSeconds(tree, "key");
         assertThat(date, is(nullValue()));
     }
 
     @Test
-    public void shouldGetNullDateWhenParsingNull() throws Exception {
+    public void shouldGetNullInstantWhenParsingNull() throws Exception {
         Map<String, JsonNode> tree = new HashMap<>();
         tree.put("key", null);
 
-        Date date = deserializer.getDateFromSeconds(tree, "key");
+        Instant date = deserializer.getInstantFromSeconds(tree, "key");
         assertThat(date, is(nullValue()));
     }
 
@@ -206,32 +207,32 @@ public class PayloadDeserializerTest {
         TextNode node = new TextNode("123456789");
         tree.put("key", node);
 
-        deserializer.getDateFromSeconds(tree, "key");
+        deserializer.getInstantFromSeconds(tree, "key");
     }
 
     @Test
-    public void shouldGetDateWhenParsingNumericNode() throws Exception {
+    public void shouldGetInstantWhenParsingNumericNode() throws Exception {
         Map<String, JsonNode> tree = new HashMap<>();
         long seconds = 1478627949 / 1000;
         LongNode node = new LongNode(seconds);
         tree.put("key", node);
 
-        Date date = deserializer.getDateFromSeconds(tree, "key");
+        Instant date = deserializer.getInstantFromSeconds(tree, "key");
         assertThat(date, is(notNullValue()));
-        assertThat(date.getTime(), is(seconds * 1000));
+        assertThat(date.toEpochMilli(), is(seconds * 1000));
     }
 
     @Test
-    public void shouldGetLargeDateWhenParsingNumericNode() throws Exception {
+    public void shouldGetLargeInstantWhenParsingNumericNode() throws Exception {
         Map<String, JsonNode> tree = new HashMap<>();
         long seconds = Integer.MAX_VALUE + 10000L;
         LongNode node = new LongNode(seconds);
         tree.put("key", node);
 
-        Date date = deserializer.getDateFromSeconds(tree, "key");
+        Instant date = deserializer.getInstantFromSeconds(tree, "key");
         assertThat(date, is(notNullValue()));
-        assertThat(date.getTime(), is(seconds * 1000));
-        assertThat(date.getTime(), is(2147493647L * 1000));
+        assertThat(date.toEpochMilli(), is(seconds * 1000));
+        assertThat(date.toEpochMilli(), is(2147493647L * 1000));
     }
 
     @Test

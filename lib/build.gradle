@@ -1,36 +1,9 @@
 apply plugin: 'jacoco'
 apply plugin: 'java'
-apply from: '../scripts/release.gradle'
-apply from: '../scripts/maven.gradle'
-apply from: '../scripts/bintray.gradle'
-
-logger.lifecycle("Using version ${version} for ${group}.${name}")
-
-auth0 {
-    name "java jwt"
-    repo "java-jwt"
-    description "Java implementation of JSON Web Token (JWT)"
-    url  'http://www.jwt.io'
-    developer {
-        id = "auth0"
-        name = "Auth0"
-        email = "oss@auth0.com"
-    }
-    developer {
-        id = "lbalmaceda"
-        name = "Luciano Balmaceda"
-        email = "luciano.balmaceda@auth0.com"
-    }
-    developer {
-        id = "hzalaz"
-        name = "Hernan Zalazar"
-        email = "hernan@auth0.com"
-    }
-}
 
 compileJava {
-    sourceCompatibility '1.7'
-    targetCompatibility '1.7'
+    sourceCompatibility '1.8'
+    targetCompatibility '1.8'
 }
 
 dependencies {
@@ -57,7 +30,3 @@ test {
     }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
-    delete 'CHANGELOG.md.release'
-}

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import java.io.IOException;
-import java.util.Date;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,11 +39,11 @@ public class PayloadSerializer extends StdSerializer<ClaimsHolder> {
                 case PublicClaims.EXPIRES_AT:
                 case PublicClaims.ISSUED_AT:
                 case PublicClaims.NOT_BEFORE:
-                    safePayload.put(e.getKey(), dateToSeconds((Date) e.getValue()));
+                    safePayload.put(e.getKey(), instantToSeconds((Instant) e.getValue()));
                     break;
                 default:
-                    if (e.getValue() instanceof Date) {
-                        safePayload.put(e.getKey(), dateToSeconds((Date) e.getValue()));
+                    if (e.getValue() instanceof Instant) {
+                        safePayload.put(e.getKey(), instantToSeconds((Instant) e.getValue()));
                     } else {
                         safePayload.put(e.getKey(), e.getValue());
                     }
@@ -54,7 +54,7 @@ public class PayloadSerializer extends StdSerializer<ClaimsHolder> {
         gen.writeObject(safePayload);
     }
 
-    private long dateToSeconds(Date date) {
-        return date.getTime() / 1000;
+    private long instantToSeconds(Instant instant) {
+        return instant.getEpochSecond();
     }
 }

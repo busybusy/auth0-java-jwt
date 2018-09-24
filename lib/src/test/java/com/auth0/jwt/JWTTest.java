@@ -1,7 +1,6 @@
 package com.auth0.jwt;
 
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.Clock;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.apache.commons.codec.binary.Base64;
 import org.hamcrest.collection.IsCollectionWithSize;
@@ -13,12 +12,10 @@ import org.junit.rules.ExpectedException;
 import java.nio.charset.StandardCharsets;
 import java.security.interfaces.ECKey;
 import java.security.interfaces.RSAKey;
-import java.util.Date;
+import java.time.Instant;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class JWTTest {
 
@@ -240,56 +237,50 @@ public class JWTTest {
 
     @Test
     public void shouldGetExpirationTime() throws Exception {
-        Date expectedDate = new Date(1477592 * 1000);
-        Clock clock = mock(Clock.class);
-        when(clock.getToday()).thenReturn(expectedDate);
+        Instant expectedInstant = Instant.ofEpochSecond(1477592 * 1000);
 
         String token = "eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0Nzc1OTJ9.x_ZjkPkKYUV5tdvc0l8go6D_z2kez1MQcOxokXrDc3k";
         JWTVerifier.BaseVerification verification = (JWTVerifier.BaseVerification) JWT.require(Algorithm.HMAC256("secret"));
         DecodedJWT jwt = verification
-                .build(clock)
+                .build()
                 .verify(token);
 
         assertThat(jwt, is(notNullValue()));
-        assertThat(jwt.getExpiresAt(), is(instanceOf(Date.class)));
+        assertThat(jwt.getExpiresAt(), is(instanceOf(Instant.class)));
         assertThat(jwt.getExpiresAt(), is(notNullValue()));
-        assertThat(jwt.getExpiresAt(), is(equalTo(expectedDate)));
+        assertThat(jwt.getExpiresAt(), is(equalTo(expectedInstant)));
     }
 
     @Test
     public void shouldGetNotBefore() throws Exception {
-        Date expectedDate = new Date(1477592 * 1000);
-        Clock clock = mock(Clock.class);
-        when(clock.getToday()).thenReturn(expectedDate);
+        Instant expectedInstant = Instant.ofEpochSecond(1477592 * 1000);
 
         String token = "eyJhbGciOiJIUzI1NiJ9.eyJuYmYiOjE0Nzc1OTJ9.mWYSOPoNXstjKbZkKrqgkwPOQWEx3F3gMm6PMcfuJd8";
         JWTVerifier.BaseVerification verification = (JWTVerifier.BaseVerification) JWT.require(Algorithm.HMAC256("secret"));
         DecodedJWT jwt = verification
-                .build(clock)
+                .build()
                 .verify(token);
 
         assertThat(jwt, is(notNullValue()));
-        assertThat(jwt.getNotBefore(), is(instanceOf(Date.class)));
+        assertThat(jwt.getNotBefore(), is(instanceOf(Instant.class)));
         assertThat(jwt.getNotBefore(), is(notNullValue()));
-        assertThat(jwt.getNotBefore(), is(equalTo(expectedDate)));
+        assertThat(jwt.getNotBefore(), is(equalTo(expectedInstant)));
     }
 
     @Test
     public void shouldGetIssuedAt() throws Exception {
-        Date expectedDate = new Date(1477592 * 1000);
-        Clock clock = mock(Clock.class);
-        when(clock.getToday()).thenReturn(expectedDate);
+        Instant expectedInstant = Instant.ofEpochSecond(1477592 * 1000);
 
         String token = "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0Nzc1OTJ9.5o1CKlLFjKKcddZzoarQ37pq7qZqNPav3sdZ_bsZaD4";
         JWTVerifier.BaseVerification verification = (JWTVerifier.BaseVerification) JWT.require(Algorithm.HMAC256("secret"));
         DecodedJWT jwt = verification
-                .build(clock)
+                .build()
                 .verify(token);
 
         assertThat(jwt, is(notNullValue()));
-        assertThat(jwt.getIssuedAt(), is(instanceOf(Date.class)));
+        assertThat(jwt.getIssuedAt(), is(instanceOf(Instant.class)));
         assertThat(jwt.getIssuedAt(), is(notNullValue()));
-        assertThat(jwt.getIssuedAt(), is(equalTo(expectedDate)));
+        assertThat(jwt.getIssuedAt(), is(equalTo(expectedInstant)));
     }
 
     @Test
