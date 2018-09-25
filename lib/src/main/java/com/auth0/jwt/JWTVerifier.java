@@ -9,6 +9,7 @@ import com.auth0.jwt.interfaces.Verification;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.temporal.ChronoField;
 import java.util.*;
 
 /**
@@ -414,7 +415,7 @@ public final class JWTVerifier {
     }
 
     private void assertValidInstantClaim(Instant claimed, long leeway, boolean shouldBeFuture) {
-        Instant now = Instant.now();
+        Instant now = Instant.now().with(ChronoField.MILLI_OF_SECOND, 0);
         if (shouldBeFuture) {
             assertInstantIsFuture(claimed, leeway, now);
         } else {
