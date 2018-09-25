@@ -424,13 +424,13 @@ public final class JWTVerifier {
     }
 
     private void assertInstantIsFuture(Instant claimed, long leeway, Instant current) {
-        if (claimed != null && claimed.minusSeconds(leeway).isAfter(current)) {
+        if (claimed != null && claimed.plusSeconds(leeway).isAfter(current)) {
             throw new TokenExpiredException(String.format("The Token has expired on %s.", claimed));
         }
     }
 
     private void assertInstantIsPast(Instant claimed, long leeway, Instant current) {
-        if (claimed != null && claimed.plusSeconds(leeway).isBefore(current)) {
+        if (claimed != null && claimed.minusSeconds(leeway).isBefore(current)) {
             throw new InvalidClaimException(String.format("The Token can't be used before %s.", claimed));
         }
     }
